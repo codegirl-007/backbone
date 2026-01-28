@@ -30,7 +30,7 @@
     assert.equal(this.ajaxSettings.url, '/library');
     assert.equal(this.ajaxSettings.type, 'GET');
     assert.equal(this.ajaxSettings.dataType, 'json');
-    assert.ok(_.isEmpty(this.ajaxSettings.data));
+    assert.ok(!this.ajaxSettings.data || Object.keys(this.ajaxSettings.data).length === 0);
   });
 
   QUnit.test('passing data', function(assert) {
@@ -54,7 +54,7 @@
 
   QUnit.test('update', function(assert) {
     assert.expect(7);
-    library.first().save({id: '1-the-tempest', author: 'William Shakespeare'});
+    library.at(0).save({id: '1-the-tempest', author: 'William Shakespeare'});
     assert.equal(this.ajaxSettings.url, '/library/1-the-tempest');
     assert.equal(this.ajaxSettings.type, 'PUT');
     assert.equal(this.ajaxSettings.dataType, 'json');
@@ -67,7 +67,7 @@
 
   QUnit.test('update with emulateHTTP and emulateJSON', function(assert) {
     assert.expect(7);
-    library.first().save({id: '2-the-tempest', author: 'Tim Shakespeare'}, {
+    library.at(0).save({id: '2-the-tempest', author: 'Tim Shakespeare'}, {
       emulateHTTP: true,
       emulateJSON: true
     });
@@ -83,7 +83,7 @@
 
   QUnit.test('update with just emulateHTTP', function(assert) {
     assert.expect(6);
-    library.first().save({id: '2-the-tempest', author: 'Tim Shakespeare'}, {
+    library.at(0).save({id: '2-the-tempest', author: 'Tim Shakespeare'}, {
       emulateHTTP: true
     });
     assert.equal(this.ajaxSettings.url, '/library/2-the-tempest');
@@ -97,7 +97,7 @@
 
   QUnit.test('update with just emulateJSON', function(assert) {
     assert.expect(6);
-    library.first().save({id: '2-the-tempest', author: 'Tim Shakespeare'}, {
+    library.at(0).save({id: '2-the-tempest', author: 'Tim Shakespeare'}, {
       emulateJSON: true
     });
     assert.equal(this.ajaxSettings.url, '/library/2-the-tempest');
@@ -111,17 +111,17 @@
 
   QUnit.test('read model', function(assert) {
     assert.expect(3);
-    library.first().save({id: '2-the-tempest', author: 'Tim Shakespeare'});
-    library.first().fetch();
+    library.at(0).save({id: '2-the-tempest', author: 'Tim Shakespeare'});
+    library.at(0).fetch();
     assert.equal(this.ajaxSettings.url, '/library/2-the-tempest');
     assert.equal(this.ajaxSettings.type, 'GET');
-    assert.ok(_.isEmpty(this.ajaxSettings.data));
+    assert.ok(!this.ajaxSettings.data || Object.keys(this.ajaxSettings.data).length === 0);
   });
 
   QUnit.test('destroy', function(assert) {
     assert.expect(3);
-    library.first().save({id: '2-the-tempest', author: 'Tim Shakespeare'});
-    library.first().destroy({wait: true});
+    library.at(0).save({id: '2-the-tempest', author: 'Tim Shakespeare'});
+    library.at(0).destroy({wait: true});
     assert.equal(this.ajaxSettings.url, '/library/2-the-tempest');
     assert.equal(this.ajaxSettings.type, 'DELETE');
     assert.equal(this.ajaxSettings.data, null);
@@ -129,8 +129,8 @@
 
   QUnit.test('destroy with emulateHTTP', function(assert) {
     assert.expect(3);
-    library.first().save({id: '2-the-tempest', author: 'Tim Shakespeare'});
-    library.first().destroy({
+    library.at(0).save({id: '2-the-tempest', author: 'Tim Shakespeare'});
+    library.at(0).destroy({
       emulateHTTP: true,
       emulateJSON: true
     });

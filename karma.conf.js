@@ -9,9 +9,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-        'test/vendor/jquery.js',
         'test/vendor/json2.js',
-        'test/vendor/underscore.js',
         'backbone.js',
         'debug-info.js',
         'test/setup/*.js',
