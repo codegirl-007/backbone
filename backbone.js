@@ -517,9 +517,19 @@
   Events.trigger = function(name) {
     if (!this._events) return this;
 
+    if (typeof name === 'string' && !eventSplitter.test(name)) {
+      var objEvents = this._events;
+      if (!objEvents[name] && !objEvents.all) return this;
+    }
+
     var length = Math.max(0, arguments.length - 1);
-    var args = Array(length);
-    for (var i = 0; i < length; i++) args[i] = arguments[i + 1];
+    var args;
+    if (length === 0) {
+      args = [];
+    } else {
+      args = Array(length);
+      for (var i = 0; i < length; i++) args[i] = arguments[i + 1];
+    }
 
     eventsApi(triggerApi, this._events, name, void 0, args);
     return this;
@@ -1033,12 +1043,19 @@
     // Models or raw JavaScript objects to be converted to Models, or any
     // combination of the two.
     add: function(models, options) {
+      if (!options) {
+        return this.set(models, {add: true, remove: false, merge: false});
+      }
       return this.set(models, Object.assign({merge: false}, options, addOptions));
     },
 
     // Remove a model, or a list of models from the set.
     remove: function(models, options) {
-      options = Object.assign({}, options);
+      if (!options) {
+        options = {};
+      } else {
+        options = Object.assign({}, options);
+      }
       var singular = !Array.isArray(models);
       models = singular ? [models] : models.slice();
       var removed = this._removeModels(models, options);
@@ -1056,7 +1073,11 @@
     set: function(models, options) {
       if (models == null) return;
 
-      options = Object.assign({}, setOptions, options);
+      if (!options) {
+        options = {add: true, remove: true, merge: true};
+      } else {
+        options = Object.assign({}, setOptions, options);
+      }
       if (options.parse && !this._isModel(models)) {
         models = this.parse(models, options) || [];
       }
@@ -1130,7 +1151,11 @@
       // See if sorting is needed, update `length` and splice in new models.
       var orderChanged = false;
       var replace = !sortable && add && remove;
-      if (set.length && replace) {
+
+      if (this.length === 0 && !sortable && add && !remove && !merge && at == null && toAdd.length) {
+        this.models = toAdd.slice();
+        this.length = this.models.length;
+      } else if (set.length && replace) {
         orderChanged = this.length !== set.length || this.models.some(function(m, index) {
           return m !== set[index];
         });
@@ -1621,8 +1646,11 @@
         if (!attrs.collection) attrs.collection = this;
         return attrs;
       }
-      options = {...options};
-      options.collection = this;
+      if (options) {
+        options = Object.assign({}, options, {collection: this});
+      } else {
+        options = {collection: this};
+      }
 
       var model;
       if (this.model.prototype) {
