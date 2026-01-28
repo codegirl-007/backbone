@@ -12,24 +12,22 @@
     "browser"
   ],
   "author": "Jeremy Ashkenas",
-  "dependencies": {
-    "underscore": ">=1.8.3"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@playwright/test": "^1.58.0",
     "coffeescript": "^2.7.0",
     "cpy-cli": "^5.0.0",
     "docco": "^0.9.1",
     "eslint": "^8.7.0",
     "eslint-plugin-import": "^2.28.1",
-    "karma": "^6.3.11",
-    "karma-qunit": "^4.1.2",
+    "http-server": "^14.1.1",
     "qunit": "^2.17.2",
     "replace-in-file": "^7.0.1",
     "rollup": "^3.28.1",
     "uglify-js": "^3.14.5"
   },
   "scripts": {
-    "test": "karma start && coffee test/model.coffee && npm run lint",
+    "test": "npx playwright test && coffee test/model.coffee && npm run lint",
     "build": "uglifyjs backbone.js --mangle --source-map url=backbone-min.js.map -o backbone-min.js",
     "build-debug": "npx rollup -e backbone -f umd -g backbone:Backbone -n Backbone.debugInfo -o debug-info.js --no-strict modules/debug-info.js",
     "alias-sourcemap": "cpy --rename=backbone-min.map backbone-min.js.map .",

@@ -2,7 +2,11 @@
   "env": {
     "browser": true,
     "node": true,
-    "amd": true
+    "amd": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020
   },
   "globals": {
     "attachEvent": false,
