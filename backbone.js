@@ -2778,5 +2778,8 @@
     return {root: root, _: _};
   };
 
+  // Reactive system namespace (populated by backbone.reactive.js if loaded)
+  Backbone.Reactive = Backbone.Reactive || {};
+
   return Backbone;
 });

@@ -82,7 +82,10 @@ test('Backbone QUnit tests', async ({ page }) => {
         li.querySelectorAll('.fail .test-message').forEach(msg => {
           assertions.push(msg.textContent);
         });
-        details.push({ module, test, assertions });
+        // Get the full HTML of the failure for more details
+        const failureHtml = li.querySelector('.test-actual')?.textContent || '';
+        const expectedHtml = li.querySelector('.test-expected')?.textContent || '';
+        details.push({ module, test, assertions, failureHtml, expectedHtml });
       });
       return details;
     });
@@ -90,10 +93,77 @@ test('Backbone QUnit tests', async ({ page }) => {
     failureDetails.forEach(f => {
       console.log(`  ${red}✗${reset} ${f.module}: ${f.test}`);
       f.assertions.forEach(a => console.log(`      ${a}`));
+      if (f.failureHtml) {
+        console.log(`      Actual: ${f.failureHtml}`);
+      }
+      if (f.expectedHtml) {
+        console.log(`      Expected: ${f.expectedHtml}`);
+      }
     });
   }
   console.log('');
 
   // Assert no failures
   expect(failed, `${failed} tests failed`).toBe(0);
+});
+
+test('reactive-todo example works', async ({ page }) => {
+  // Navigate to the actual example HTML
+  await page.goto('/examples/reactive-todo/index.html');
+
+  // Wait for app to load
+  await page.waitForSelector('.todo-form input', { timeout: 5000 });
+
+  // Verify initial todos are rendered (3 initial todos)
+  const initialTodos = await page.locator('.todo-item').count();
+  expect(initialTodos).toBe(3);
+
+  // Test first form submission
+  const input = page.locator('.todo-form input');
+  await input.fill('Test Todo 1');
+  await input.press('Enter');
+
+  // Wait a bit for reactive update
+  await page.waitForTimeout(100);
+
+  // Verify todo was added (should have 4 now)
+  const todosAfterFirst = await page.locator('.todo-item').count();
+  expect(todosAfterFirst).toBe(4);
+
+  // Verify input was cleared
+  const inputValue = await input.inputValue();
+  expect(inputValue).toBe('');
+
+  // Test second form submission (this catches the bug we fixed)
+  await input.fill('Test Todo 2');
+  await input.press('Enter');
+
+  // Wait for reactive update
+  await page.waitForTimeout(100);
+
+  // Verify second todo was added (should have 5 now)
+  const todosAfterSecond = await page.locator('.todo-item').count();
+  expect(todosAfterSecond).toBe(5);
+
+  // Test toggle functionality
+  const firstCheckbox = page.locator('.todo-checkbox').first();
+  await firstCheckbox.click();
+
+  // Wait for reactive update
+  await page.waitForTimeout(100);
+
+  // Verify checkbox is checked
+  const isChecked = await firstCheckbox.isChecked();
+  expect(isChecked).toBe(true);
+
+  // Test delete functionality
+  const deleteButton = page.locator('.todo-delete').first();
+  await deleteButton.click();
+
+  // Wait for reactive update
+  await page.waitForTimeout(100);
+
+  // Verify todo was deleted (should have 4 now)
+  const todosAfterDelete = await page.locator('.todo-item').count();
+  expect(todosAfterDelete).toBe(4);
 });
